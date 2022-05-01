@@ -1,0 +1,7 @@
+numpy
+Pillow
+torch
+torchvision
+matplotlib
+gdown
+git+https://github.com/gautamchitnis/cocoapi.git@cocodataset-master#subdirectory=PythonAPI&egg=pycocotools
