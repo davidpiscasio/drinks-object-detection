@@ -6,6 +6,7 @@ from PIL import Image
 import torchvision
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
+import gdown
 from engine import train_one_epoch, evaluate
 import utils
 from torchvision import transforms
@@ -87,6 +88,15 @@ def main():
 
     # get the model using our helper function
     model = get_model_instance_segmentation(num_classes)
+
+    # download pretrained model weights
+    if not os.path.exists('drinks_object-detection.pth'):
+        url = 'https://drive.google.com/uc?id=1YlfXC1R2rH7pBb7jbxhk61XIW4QJVRnB'
+        output = 'drinks_object-detection.pth'
+        gdown.download(url, output, quiet=False)
+        print("Downloaded pretrained model weights: drinks_object-detection.pth")
+    else:
+        print("Pretrained model already in path")
 
     # load the pretrained model weights
     if torch.cuda.is_available():
