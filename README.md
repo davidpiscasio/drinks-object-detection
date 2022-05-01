@@ -3,8 +3,8 @@ David Angelo Piscasio's implementation of object detection with the drinks datas
 
 ### Model reference
 The following implementation makes use of Faster R-CNN to perform object detection. To know more about the model, you may check out the links to the paper and code:
-* [Paper](https://arxiv.org/abs/1506.01497)
-* [Code](https://github.com/rbgirshick/py-faster-rcnn)
+* [Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks](https://arxiv.org/abs/1506.01497)
+* [Faster R-CNN Python Implementation](https://github.com/rbgirshick/py-faster-rcnn)
 
 ### Data preparation
 This object detection model makes use of the drinks dataset. You may download the dataset together with the labels from [https://bit.ly/adl2-ssd](https://bit.ly/adl2-ssd). However, you do not need to download this if you will be running ```train.py``` or ```test.py``` since the scripts will automatically prepare the data for you if the dataset is still not present in the path.
