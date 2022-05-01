@@ -16,10 +16,11 @@ pip install -r requirements.txt
 ```
 
 ### Testing the model
-To test the model on the test dataset with the provided pre-trained model weights from ```drinks_object-detection.pth```,
+To test the model on the test dataset with the pre-trained model weights from ```drinks_object-detection.pth```,
 ```
 python3 test.py
 ```
+The script will automatically download the pre-trained model weights and load it to the model.
 
 ### Training the model
 To train the model on the train dataset and test its performance on the test dataset,
