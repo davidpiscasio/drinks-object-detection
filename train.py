@@ -105,11 +105,11 @@ def main():
                                                    step_size=30,
                                                    gamma=0.1)
 
-    # training for 100 epochs
-    num_epochs = 100
+    # training for 70 epochs
+    num_epochs = 70
 
     for epoch in range(num_epochs):
-        # train for one epoch, printing every 10 iterations
+        # train for one epoch, printing every 125 iterations
         train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq=125)
         # update the learning rate
         lr_scheduler.step()
