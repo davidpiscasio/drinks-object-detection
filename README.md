@@ -27,4 +27,4 @@ To train the model on the train dataset and test its performance on the test dat
 ```
 python3 train.py
 ```
-The script will also automatically save the newly trained model weights to the filename ```drinks_object-detection.pth```
+The script will also automatically save the newly trained model weights to the filename ```drinks_object-detection.pth```.
