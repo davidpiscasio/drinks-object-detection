@@ -33,4 +33,4 @@ The script will also automatically save the newly trained model weights to the f
 Here are other references that were used to implement the object detection program:
 * [Torchvision Object Detection Finetuning Tutorial](https://pytorch.org/tutorials/intermediate/torchvision_tutorial.html)
 * [PyTorch Vision Detection Reference](https://github.com/pytorch/vision/tree/main/references/detection)
-* [Deep Learning Experiments: Datasets and Dataloaders Tutorial](https://github.com/roatienza/Deep-Learning-Experiments/tree/master/versions/2022/datasets)
+* [Deep Learning Experiments: Datasets & Dataloaders](https://github.com/roatienza/Deep-Learning-Experiments/tree/master/versions/2022/datasets/python)
