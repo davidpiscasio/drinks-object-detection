@@ -2,6 +2,7 @@ numpy
 Pillow
 torch
 torchvision
+einops
 matplotlib
 gdown
 git+https://github.com/gautamchitnis/cocoapi.git@cocodataset-master#subdirectory=PythonAPI&egg=pycocotools
