@@ -1,126 +1,68 @@
 import os
-import numpy as np
 import torch
-from PIL import Image
+from pytorch_lightning.callbacks import ModelCheckpoint
+from train_arguments import get_args
+from data_module import KWSDataModule
+from pytorch_lightning import Trainer
+from transformer_model import KWSTransformer
 
-import torchvision
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-
-from engine import train_one_epoch, evaluate
-import utils
-from torchvision import transforms
-import label_utils
-from download_dataset import download_dataset
-
-# download dataset if it doesn't exist
-if not os.path.exists('drinks'):
-    download_dataset()
-else:
-    print("Drinks dataset already in path")
-
-test_dict, test_classes = label_utils.build_label_dictionary("drinks/labels_test.csv")
-train_dict, train_classes = label_utils.build_label_dictionary("drinks/labels_train.csv")
-
-class DrinksDataset(object):
-    def __init__(self, dictionary, transform=None):
-        self.dictionary = dictionary
-        self.transform = transform
-
-    def __len__(self):
-        return len(self.dictionary)
-
-    def __getitem__(self, idx):
-        # retrieve the image filename
-        key = list(self.dictionary.keys())[idx]
-        # retrieve all bounding boxes
-        boxes = self.dictionary[key]
-        # swap xmax and ymin to conform to appropriate format
-        boxes[:,1:3] = boxes[:,2:0:-1]
-        # retrieve labels
-        labels = boxes[:,4]
-        labels = torch.as_tensor(labels, dtype=torch.int64)
-        # remove label from bounding boxes
-        boxes = boxes[:,0:4]
-        boxes = torch.as_tensor(boxes, dtype=torch.float32)
-        image_id = torch.tensor([idx])
-        area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
-        # suppose all instances are not crowd
-        iscrowd = torch.zeros((len(labels),), dtype=torch.int64)
-        # open the file as a PIL image
-        img = Image.open(key)
-        target = {}
-        target["boxes"] = boxes
-        target["labels"] = labels
-        target["image_id"] = image_id
-        target["area"] = area
-        target["iscrowd"] = iscrowd
-        # apply the necessary transforms
-        if self.transform:
-            img = self.transform(img)
-        
-        # return a list of images and target (as required by the Faster R-CNN model)
-        return img, target
-
-def get_model_instance_segmentation(num_classes):
-    # load an instance segmentation model pre-trained pre-trained on COCO
-    model = torchvision.models.detection.fasterrcnn_mobilenet_v3_large_320_fpn(pretrained=True)
-
-    # get number of input features for the classifier
-    in_features = model.roi_heads.box_predictor.cls_score.in_features
-    # replace the pre-trained head with a new one
-    model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
-
-    return model
-
-def main():
-    # train on the GPU or on the CPU, if a GPU is not available
-    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-
-    # our dataset has two classes only - background and person
-    num_classes = 4
-    # use our dataset and defined transformations
-    dataset = DrinksDataset(train_dict, transforms.ToTensor())
-    dataset_test = DrinksDataset(test_dict, transforms.ToTensor())
-
-    # define training and test data loaders
-    data_loader = torch.utils.data.DataLoader(
-        dataset, batch_size=8, shuffle=True, num_workers=2,
-        collate_fn=utils.collate_fn)
-    data_loader_test = torch.utils.data.DataLoader(
-        dataset_test, batch_size=1, shuffle=False, num_workers=2,
-        collate_fn=utils.collate_fn)
-
-    # get the model using our helper function
-    model = get_model_instance_segmentation(num_classes)
-
-    # move model to the right device
-    model.to(device)
-
-    # construct an optimizer
-    params = [p for p in model.parameters() if p.requires_grad]
-    optimizer = torch.optim.SGD(params, lr=0.005,
-                                momentum=0.9, weight_decay=0.0005)
-    # and a learning rate scheduler
-    lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
-                                                   step_size=30,
-                                                   gamma=0.1)
-
-    # training for 70 epochs
-    num_epochs = 70
-
-    for epoch in range(num_epochs):
-        # train for one epoch, printing every 125 iterations
-        train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq=125)
-        # update the learning rate
-        lr_scheduler.step()
-
-    # after training, evaluate on the test dataset
-    evaluate(model, data_loader_test, device=device)
-
-    # save the model weights
-    torch.save(model.state_dict(), 'drinks_object-detection.pth')
-
-    print("Saved model weights to drinks_object-detection.pth")
-    
 if __name__ == "__main__":
-    main()
+    args = get_args()
+    CLASSES = ['silence', 'unknown', 'backward', 'bed', 'bird', 'cat', 'dog', 'down', 'eight', 'five', 'follow',
+               'forward', 'four', 'go', 'happy', 'house', 'learn', 'left', 'marvin', 'nine', 'no',
+               'off', 'on', 'one', 'right', 'seven', 'sheila', 'six', 'stop', 'three',
+               'tree', 'two', 'up', 'visual', 'wow', 'yes', 'zero']
+    
+    # make a dictionary from CLASSES to integers
+    CLASS_TO_IDX = {c: i for i, c in enumerate(CLASSES)}
+
+    if not os.path.exists(args.path):
+        os.makedirs(args.path, exist_ok=True)
+
+    datamodule = KWSDataModule(batch_size=args.batch_size,
+                            patch_num=args.patch_num, 
+                            num_workers=args.num_workers * args.devices,
+                            path=args.path, n_fft=args.n_fft, n_mels=args.n_mels,
+                            win_length=args.win_length, hop_length=args.hop_length,
+                            class_dict=CLASS_TO_IDX)
+    datamodule.setup()
+
+    data = iter(datamodule.train_dataloader()).next()
+    patch_dim = data[0].shape[-1]
+    seqlen = data[0].shape[-2]
+    print("Embed dim:", args.embed_dim)
+    print("Patch size:", 32//args.patch_num)
+    print("Sequence length:", seqlen)
+
+    model = KWSTransformer(num_classes=args.num_classes, lr=args.lr, epochs=args.max_epochs, 
+                           depth=args.depth, embed_dim=args.embed_dim, head=args.num_heads,
+                           patch_dim=patch_dim, seqlen=seqlen)
+
+    model_checkpoint = ModelCheckpoint(
+        dirpath=os.path.join(args.path, "checkpoints"),
+        filename="transformer-kws-best-acc",
+        save_top_k=1,
+        verbose=True,
+        monitor='test_acc',
+        mode='max')
+
+    idx_to_class = {v: k for k, v in CLASS_TO_IDX.items()}
+    trainer = Trainer(accelerator=args.accelerator, devices=args.devices,
+                      max_epochs=args.max_epochs, precision=16 if args.accelerator == 'gpu' else 32, 
+                      callbacks=model_checkpoint)
+    model.hparams.sample_rate = datamodule.sample_rate
+    model.hparams.idx_to_class = idx_to_class
+    trainer.fit(model, datamodule=datamodule)
+    #trainer.test(model, datamodule=datamodule)
+
+    script = model.to_torchscript()
+
+    model = model.load_from_checkpoint(os.path.join(
+    args.path, "checkpoints", "transformer-kws-best-acc.ckpt"))
+    model.eval()
+    script = model.to_torchscript()
+
+    # save for use in production environment
+    model_path = os.path.join(args.path, "checkpoints", 
+                            "transformer-kws-best-acc.pt")
+    torch.jit.save(script, model_path)    

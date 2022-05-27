@@ -1,8 +1,11 @@
-numpy
-Pillow
 torch
+torchaudio
 torchvision
+librosa
+numpy
+pytorch_lightning
+torchmetrics
 einops
 matplotlib
-gdown
-git+https://github.com/gautamchitnis/cocoapi.git@cocodataset-master#subdirectory=PythonAPI&egg=pycocotools
+sounddevice
+validators
