@@ -53,7 +53,7 @@ if __name__ == "__main__":
     model.hparams.sample_rate = datamodule.sample_rate
     model.hparams.idx_to_class = idx_to_class
     trainer.fit(model, datamodule=datamodule)
-    #trainer.test(model, datamodule=datamodule)
+    trainer.test(model, datamodule=datamodule)
 
     script = model.to_torchscript()
 
