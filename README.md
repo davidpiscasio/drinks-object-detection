@@ -3,7 +3,7 @@ David Angelo Piscasio's implementation of a transformer-based Keyword Spotting (
 
 ### Model reference
 The following implementation makes use of a transformer model to perform keyword spotting. To know more about the transformer model reference, you may check out the following link to the code:
-* [Transformer for CIFAR10]([https://arxiv.org/abs/1506.01497](https://github.com/roatienza/Deep-Learning-Experiments/blob/master/versions/2022/transformer/python/transformer_demo.ipynb))
+* [Transformer for CIFAR10](https://github.com/roatienza/Deep-Learning-Experiments/blob/master/versions/2022/transformer/python/transformer_demo.ipynb)
 
 ### Install requirements
 To install the needed dependencies for this implementation,
