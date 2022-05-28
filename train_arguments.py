@@ -24,7 +24,7 @@ def get_args():
     parser.add_argument('--max-epochs', type=int, default=30, metavar='N',
                         help='number of epochs to train (default: 30)')
     parser.add_argument('--lr', type=float, default=0.0005, metavar='LR',
-                        help='learning rate (default: 0.001)')
+                        help='learning rate (default: 0.0005)')
 
     parser.add_argument('--accelerator', default='gpu', type=str, metavar='N')
     parser.add_argument('--devices', default=1, type=int, metavar='N')
