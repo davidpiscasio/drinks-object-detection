@@ -5,7 +5,7 @@ def get_args():
     parser.add_argument('--depth', type=int, default=12, help='depth')
     parser.add_argument('--embed_dim', type=int, default=64, help='embedding dimension')
     parser.add_argument('--num_heads', type=int, default=8, help='num_heads')
-    parser.add_argument('--patch_num', type=int, default=8, help='patch_num')
+    parser.add_argument('--patch_num', type=int, default=16, help='patch_num')
 
     # where dataset will be stored
     parser.add_argument("--path", type=str, default="data/speech_commands/")
