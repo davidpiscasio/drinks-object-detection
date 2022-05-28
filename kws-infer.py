@@ -23,7 +23,7 @@ def get_args():
     parser.add_argument("--gui", default=True, action="store_true")
     parser.add_argument("--rpi", default=False, action="store_true")
     parser.add_argument("--threshold", type=float, default=0.6)
-    parser.add_argument('--patch_num', type=int, default=8, help='patch_num')
+    parser.add_argument('--patch_num', type=int, default=16, help='patch_num')
     args = parser.parse_args()
     return args
 
